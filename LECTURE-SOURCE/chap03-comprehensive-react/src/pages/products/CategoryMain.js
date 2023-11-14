@@ -1,0 +1,32 @@
+import {useParams} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {callProductCategoryListAPI} from "../../apis/ProductAPICalls";
+import ProductList from "../../components/lists/ProductList";
+import PagingBar from "../../components/common/PagingBar";
+
+function CategoryMain() {
+
+    const dispatch = useDispatch();
+    const {categoryCode} = useParams();
+    const {products} = useSelector(state => state.productReducer);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        dispatch(callProductCategoryListAPI({categoryCode, currentPage}));
+    }, [categoryCode, currentPage]);
+
+    return (
+        <>
+            {products && //이거 뺴먹어서 새로고침할때 data없다고 오류났음
+                <>
+                    <ProductList data={products.data}/>
+                    <PagingBar pageInfo={products.pageInfo} setCurrentPage={setCurrentPage}/>
+                </>
+            }
+        </>
+    );
+
+}
+
+export default CategoryMain;
