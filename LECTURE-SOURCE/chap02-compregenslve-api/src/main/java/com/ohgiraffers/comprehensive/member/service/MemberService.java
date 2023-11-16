@@ -1,8 +1,11 @@
 package com.ohgiraffers.comprehensive.member.service;
 
+import com.ohgiraffers.comprehensive.common.exception.BadRequestException;
+import com.ohgiraffers.comprehensive.common.exception.type.ExceptionCode;
 import com.ohgiraffers.comprehensive.member.domain.Member;
 import com.ohgiraffers.comprehensive.member.domain.repository.MemberRepository;
 import com.ohgiraffers.comprehensive.member.dto.request.MemberSignupRequest;
+import com.ohgiraffers.comprehensive.member.dto.response.ProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,5 +30,14 @@ public class MemberService {
                 memberRequest.getMemberEmail()
         );
         memberRepository.save(newMember);
+    }
+
+    // 2. 프로필 조회
+    @Transactional(readOnly = true)
+    public ProfileResponse getProfile(String memberId) {
+
+        final Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new BadRequestException(ExceptionCode.NOT_FOUND_MEMBER_ID));
+        return ProfileResponse.from(member);
     }
 }

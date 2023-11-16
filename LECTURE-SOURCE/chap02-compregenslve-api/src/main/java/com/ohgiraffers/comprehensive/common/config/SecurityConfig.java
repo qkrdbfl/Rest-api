@@ -2,6 +2,9 @@ package com.ohgiraffers.comprehensive.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.ohgiraffers.comprehensive.jwt.filter.JwtAuthenticationFilter;
+import com.ohgiraffers.comprehensive.jwt.handler.JwtAccessDeniedHandler;
+import com.ohgiraffers.comprehensive.jwt.handler.JwtAuthenticationEntryPoint;
 import com.ohgiraffers.comprehensive.jwt.service.JwtService;
 import com.ohgiraffers.comprehensive.login.filter.CustomUsernamePasswordAuthenticationFilter;
 import com.ohgiraffers.comprehensive.login.handler.LoginFailureHandler;
@@ -35,6 +38,22 @@ public class SecurityConfig {
     private final LoginService loginService;
     private final JwtService jwtService;
 
+     /* 테스트
+    * 1. Token 값이 없거나 잘못 작성 된 경우
+         GET http://localhost:8001/member/hello  로 token 없이 → 인증되지 않은 요청
+      2. AccessToken 유효한 경우
+        GET http://localhost:8001/member/hello 로 token 가지고 → 인증 되어 404
+      3. AccessToken 유효하지 않고 RefreshToken 유효한 경우
+        accessToken 시간 설정 짧게
+        현재 refreshToken 확인 후 업데이트 되는지
+        GET http://localhost:8001/member/hello 로 access token 가지고 → 인증되지 않은 요청
+        GET http://localhost:8001/member/hello 로 refresh token 가지고 → 헤더 응답
+        GET http://localhost:8001/member/hello 로 재발급 받은 access token 가지고 요청하면 된다 (시간이 짧게 설정 되어서 다시 만료로 뜨지만)
+    4. AccessToken 유효하지만 권한이 없는 경우
+        GET http://localhost:8001/api/v1/products-management?page=1 로 일반 유저 로그인 후 발급 받은 accessToken 가지고 → 허가 되지 않은 요청
+        GET http://localhost:8001/api/v1/products-management?page=1 로 관리자 유저 로그인 후 발급 받은  accessToken 가지고 → 조회 완료
+    */
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -46,18 +65,25 @@ public class SecurityConfig {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                // 요청에 대한 권한 체크
+                // 요청에 대한 권한 체크 ------------------------------------
                 .authorizeRequests()
                 // 클라이언트가 외부 도메인을 요청하는 경우 웹 브라우저에서 자체적으로 사전 요청(preflight)이 일어남
                 // 이 때 OPTIONS 메서드로 서버에 사전 요청을 보내 권한을 확인함
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                 .antMatchers("/member/signup").permitAll()
-                .antMatchers("/api/v1/product-management/**", "/api/v1/products/**").hasRole("ADMIN")
+                .antMatchers("/api/v1/products-management/**", "/api/v1/products/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
-                .and()
+                .and()              //------------------------------------
                 // 로그인 필터 설정
                 .addFilterBefore(customUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                //JWT Token 인증 필터 패턴 설정 (로그인 필터 앞에 설정)
+                .addFilterBefore(jwtAuthenticationFilter(), CustomUsernamePasswordAuthenticationFilter.class)
+                // exception handling 설정
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint()) //인증 실패
+                .accessDeniedHandler(jwtAccessDeniedHandler()) //인가 실패
+                .and()
                 // 교차 출처 자원 공유 설정
                 .cors()
                 .and()
@@ -75,7 +101,8 @@ public class SecurityConfig {
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE"));
         corsConfiguration.setAllowedHeaders(Arrays.asList(
                 "Access-Control-Allow-Origin", "Access-Control-Allow-Headers",
-                "Content-Type", "Authorization", "X-Requested-With"));
+                "Content-Type", "Authorization", "X-Requested-With", "Access-Token", "Refresh-Token"));
+        corsConfiguration.setExposedHeaders(Arrays.asList("Access-Token", "Refresh-Token"));
         // 모든 요청 url 패턴에 대해 위의 설정을 적용한다.
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
@@ -121,6 +148,22 @@ public class SecurityConfig {
         return customUsernamePasswordAuthenticationFilter;
     }
 
+    // JWT 인증 처리
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(){
+        return new JwtAuthenticationFilter(jwtService);
+    }
+
+    // 인증 실패 핸들러
+    @Bean
+    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(){
+        return new JwtAuthenticationEntryPoint(objectMapper);
+    }
+
+    //  인가 실패 핸들러
+    public JwtAccessDeniedHandler jwtAccessDeniedHandler(){
+        return new JwtAccessDeniedHandler(objectMapper);
+    }
 
 
 }
