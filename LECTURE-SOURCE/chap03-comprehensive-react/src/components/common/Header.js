@@ -1,5 +1,6 @@
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
+import {isLogin, removeToken} from "../../utils/TokenUtils";
 
 function Header () {
 
@@ -53,10 +54,30 @@ function Header () {
     }
 
     function AfterLogin () {
+
+        const onClickLogoutHandler = () => { //토근 지워져야 함
+            removeToken();
+            window.location.replace("/");
+        }
+
+        const onClickMypageHandler = () => {
+            navigate('member/mypage');
+        }
+
         return (
             <div>
-                <button className="header-btn">마이페이지</button>|
-                <button className="header-btn">로그아웃</button>
+                <button
+                    className="header-btn"
+                    onClick={onClickMypageHandler}
+                >
+                    마이페이지
+                </button>|
+                <button
+                    className="header-btn"
+                    onClick={onClickLogoutHandler}
+                >
+                    로그아웃
+                </button>
             </div>
         );
     }
@@ -77,7 +98,7 @@ function Header () {
                     onChange={onSearchChangeHandler}
                     onKeyUp={onEnterKeyHandler}
                 />
-                { false ? <AfterLogin/> : <BeforeLogin/> }
+                { isLogin() ? <AfterLogin/> : <BeforeLogin/> }
             </div>
         </>
     );

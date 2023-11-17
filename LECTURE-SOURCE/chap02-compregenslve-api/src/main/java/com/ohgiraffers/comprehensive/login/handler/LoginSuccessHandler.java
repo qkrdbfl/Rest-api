@@ -53,7 +53,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         return Map.of(
                 "memberId", userDetails.getUsername(),
-                "membeRole", memberRole
+                "memberRole", memberRole
         );
     }
 }
