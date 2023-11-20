@@ -66,7 +66,10 @@ function ProductModify () {
     }
 
     // 상품 삭제 요청 이벤트
-    const onClickProductDeleteHandler = () => {}
+    const onClickProductDeleteHandler = () => { //////////
+
+    }
+
 
     const inputStyle = !modifyMode ? { backgroundColor : 'gray'} : null;
 
@@ -92,11 +95,13 @@ function ProductModify () {
                         상품 수정 저장하기
                     </button>
                 }
+                { modifyMode &&
                 <button
                     onClick={ onClickProductDeleteHandler }
                 >
                     상품 삭제 하기
                 </button>
+                }
             </div>
             { adminProduct  &&
                 <div className="product-section">

@@ -93,4 +93,8 @@ public class Product {
         this.productStock = productStock;
         this.status = status;
     }
+
+    public void updateStock(Long orderAmount) { //재고 수정
+        productStock -= orderAmount; // 현재 재고에서 주문 수량만큼 뺴는 코드
+    }
 }

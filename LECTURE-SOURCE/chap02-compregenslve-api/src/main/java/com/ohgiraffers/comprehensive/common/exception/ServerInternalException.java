@@ -4,13 +4,9 @@ import com.ohgiraffers.comprehensive.common.exception.type.ExceptionCode;
 import lombok.Getter;
 
 @Getter
-public class ServerInternalException extends RuntimeException{
-
-    private final int code;
-    private final String message;
+public class ServerInternalException extends CustomException{ // CustomException 상속
 
     public ServerInternalException(final ExceptionCode exceptionCode){
-        this.code = exceptionCode.getCode();
-        this.message = exceptionCode.getMessage();
+        super(exceptionCode);
     }
 }

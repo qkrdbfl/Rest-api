@@ -1,6 +1,7 @@
 package com.ohgiraffers.comprehensive.member.service;
 
 import com.ohgiraffers.comprehensive.common.exception.BadRequestException;
+import com.ohgiraffers.comprehensive.common.exception.NotFoundException;
 import com.ohgiraffers.comprehensive.common.exception.type.ExceptionCode;
 import com.ohgiraffers.comprehensive.member.domain.Member;
 import com.ohgiraffers.comprehensive.member.domain.repository.MemberRepository;
@@ -37,7 +38,7 @@ public class MemberService {
     public ProfileResponse getProfile(String memberId) {
 
         final Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new BadRequestException(ExceptionCode.NOT_FOUND_MEMBER_ID));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_MEMBER_ID));
         return ProfileResponse.from(member);
     }
 }

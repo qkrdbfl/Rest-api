@@ -22,7 +22,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     @Override //실패시 나올 메소드 자동으로 생성되지 않아 우클릭하여 생성해줌
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         System.out.println("동작확인");
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.getWriter().write(objectMapper.writeValueAsString(new ExceptionResponse(FAIL_LOGIN)));

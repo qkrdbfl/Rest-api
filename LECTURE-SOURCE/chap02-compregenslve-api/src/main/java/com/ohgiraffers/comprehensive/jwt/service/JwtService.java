@@ -1,6 +1,8 @@
 package com.ohgiraffers.comprehensive.jwt.service;
 
 import com.ohgiraffers.comprehensive.common.exception.BadRequestException;
+import com.ohgiraffers.comprehensive.common.exception.NotFoundException;
+import com.ohgiraffers.comprehensive.jwt.CustomUser;
 import com.ohgiraffers.comprehensive.member.domain.Member;
 import com.ohgiraffers.comprehensive.member.domain.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
@@ -81,7 +83,7 @@ public class JwtService {
         memberRepository.findByMemberId(memberId)
                 .ifPresentOrElse(
                         member -> member.updateRefreshToken(refreshToken), //만약 있으면
-                        () -> new BadRequestException(NOT_FOUND_MEMBER_ID) //만약 없으면 찾는 아이디 없다는 Exception 나오게
+                        () -> new NotFoundException(NOT_FOUND_MEMBER_ID) //만약 없으면 찾는 아이디 없다는 Exception 나오게
                 );
     }
 
@@ -175,10 +177,12 @@ public class JwtService {
                 .roles(member.getMemberRole().name())
                 .build();
 
-        log.info("userDetails: {}", userDetails);
+        //log.info("userDetails: {}", userDetails);
+
+        CustomUser customUser = CustomUser.of(member.getMemberCode(), userDetails); /////
 
         Authentication authentication
-                =new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                =new UsernamePasswordAuthenticationToken(customUser, null, customUser.getAuthorities()); //userDetails를 customUser로 바꿈
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

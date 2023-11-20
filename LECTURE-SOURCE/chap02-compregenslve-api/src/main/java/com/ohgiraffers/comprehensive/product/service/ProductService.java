@@ -1,6 +1,7 @@
 package com.ohgiraffers.comprehensive.product.service;
 
 import com.ohgiraffers.comprehensive.common.exception.BadRequestException;
+import com.ohgiraffers.comprehensive.common.exception.NotFoundException;
 import com.ohgiraffers.comprehensive.common.util.FileUploadUtils;
 import com.ohgiraffers.comprehensive.product.domain.Category;
 import com.ohgiraffers.comprehensive.product.domain.Product;
@@ -90,7 +91,7 @@ public class ProductService {
     public CustomerProductResponse getCustomerProduct(final Long productCode){
 
         Product product = productRepository.findByProductCodeAndStatus(productCode, USABLE)
-                .orElseThrow(() -> new BadRequestException(NOT_FOUND_PRODUCT_CODE));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_PRODUCT_CODE));
 
         return CustomerProductResponse.from(product);
     }
@@ -99,7 +100,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public AdminProductResponse getAdminProduct(final Long productCode){
         Product product = productRepository.findByProductCodeAndStatusNot(productCode, DELETED)
-                .orElseThrow(()-> new BadRequestException(NOT_FOUND_PRODUCT_CODE));
+                .orElseThrow(()-> new NotFoundException(NOT_FOUND_PRODUCT_CODE));
 
         return AdminProductResponse.from(product);// product entity를 AdminProductResponse 형태로 변경
     }
@@ -116,7 +117,7 @@ public class ProductService {
         String replaceFileName = FileUploadUtils.saveFile(IMAGE_DIR, getRandomName(), productImg);
 
         Category category = categoryRepository.findById(productRequest.getCategoryCode())
-                .orElseThrow(() -> new BadRequestException(NOT_FOUND_CATEGORY_CODE));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_CATEGORY_CODE));
 
 
         final Product newProduct = Product.of(
@@ -138,10 +139,10 @@ public class ProductService {
 
         //일단 상품조회해오기
         Product product = productRepository.findByProductCodeAndStatusNot(productCode, DELETED)
-                .orElseThrow(() -> new BadRequestException(NOT_FOUND_PRODUCT_CODE));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_PRODUCT_CODE));
 
         Category category = categoryRepository.findById(productRequest.getCategoryCode())
-                .orElseThrow(() -> new BadRequestException(NOT_FOUND_CATEGORY_CODE));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_CATEGORY_CODE));
 
         // 이미지 수정 시 새로운 이미지 저장 후 기존 이미지 삭제 로직 필요함
         if (productImg != null){

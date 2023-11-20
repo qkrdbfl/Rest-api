@@ -4,10 +4,9 @@ import com.ohgiraffers.comprehensive.common.exception.type.ExceptionCode;
 import lombok.Getter;
 
 @Getter
-public class BadRequestException extends CustomException { //RuntimeException을 상속받으면 캐치로 안감싸도 됨
+public class NotFoundException extends CustomException{
 
-    public BadRequestException(final ExceptionCode exceptionCode){
+    public NotFoundException(final ExceptionCode exceptionCode){
         super(exceptionCode);
     }
-
 }
