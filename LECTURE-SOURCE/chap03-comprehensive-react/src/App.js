@@ -14,29 +14,74 @@ import Profile from "./pages/member/Profile";
 import ProductManagement from "./pages/admin/ProductManagement";
 import ProductRegist from "./pages/admin/ProductRegist";
 import ProductModify from "./pages/admin/ProductModify";
+import Order from "./pages/order/Order";
+import OrderList from "./pages/member/OrderList";
+import Reviews from "./pages/review/Reviews";
+import ReviewDetail from "./pages/review/ReviewDetail";
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Layout/>}>
-                    <Route index element={<Main/>}/>
+                <Route path="/" element={ <Layout/> }>
+                    <Route index element={ <Main/> }/>
                     <Route path="product">
-                        <Route path="categories/:categoryCode" element={<CategoryMain/>}/>
-                        <Route path="search" element={<SearchMain/>}/> {/*라우팅 처리 해주기*/}
-                        <Route path=":productCode" element={<ProductDetail/>}/> {/*위의 <Route path="product">가 다른값일때 ":productCode"로 나오도록 */}
+                        <Route path="categories/:categoryCode" element={ <CategoryMain/> }/>
+                        <Route path="search" element={ <SearchMain/> }/>
+                        <Route path=":productCode" element={ <ProductDetail/> }/>
                     </Route>
-                    <Route path="product-management" element={<ProtectedRoute authCheck={true}><ProductManagement/></ProtectedRoute>}/> {/*관리자용 상품 목록(유저로 로그인 시 상품목록 안보이도록)*/}
-                    <Route path="product-regist" element={<ProtectedRoute authCheck={true}><ProductRegist/></ProtectedRoute>}/> {/*상품 목록 상세 내용(이미지업로드)*/}
-                    <Route path="product-modify/:productCode" element={<ProtectedRoute authCheck={true}><ProductModify/></ProtectedRoute>}/> {/*상품 리스트의 상세 내용 조회 수정 삭제*/}
-
+                    <Route
+                        path="product-management"
+                        element={
+                            <ProtectedRoute authCheck={true}>
+                                <ProductManagement/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="product-regist"
+                        element={
+                            <ProtectedRoute authCheck={true}>
+                                <ProductRegist/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="product-modify/:productCode"
+                        element={
+                            <ProtectedRoute authCheck={true}>
+                                <ProductModify/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="order"
+                        element={
+                            <ProtectedRoute loginCheck={true}>
+                                <Order/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="review">
+                        <Route path="product/:productCode" element={
+                            <ProtectedRoute loginCheck={true}>
+                                <Reviews/>
+                            </ProtectedRoute>
+                        }/>
+                        <Route path=":reviewCode" element={
+                            <ProtectedRoute loginCheck={true}> {/*로그인이 되어있을때만 ReviewDetail를 보여준다*/}
+                                <ReviewDetail/>
+                            </ProtectedRoute>
+                        }/>
+                    </Route>
                 </Route>
                 <Route path="/member">
-                    <Route path="signup" element={<ProtectedRoute loginCheck={false}><Signup/></ProtectedRoute>}/>
-                    <Route path="login" element={<ProtectedRoute loginCheck={false}><Login/></ProtectedRoute>}/>
-                    <Route path="mypage" element={<ProtectedRoute loginCheck={true}><MyPageLayout/></ProtectedRoute>}>
-                        <Route index element={<Navigate to="/member/mypage/profile" replace/>}/>
-                        <Route path="profile" element={<Profile/>}/>
+                    <Route path="signup" element={ <ProtectedRoute loginCheck={false}><Signup/></ProtectedRoute> }/>
+                    <Route path="login" element={ <ProtectedRoute loginCheck={false}><Login/></ProtectedRoute> }/>
+                    <Route path="mypage" element={ <ProtectedRoute loginCheck={true}><MyPageLayout/></ProtectedRoute> }>
+                        <Route index element={ <Navigate to="/member/mypage/profile" replace/>}/>
+                        <Route path="profile" element={ <Profile/> }/>
+                        <Route path="payment" element={ <OrderList/> }/>
                     </Route>
                 </Route>
                 <Route path="*" element={<Error/>}/>
